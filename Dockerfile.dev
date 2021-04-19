@@ -1,0 +1,73 @@
+# CRM rapi
+# Version: 1.0
+
+# pull official base image
+# FROM python:3.8.3-alpine
+# FROM python:3.8.3-buster
+FROM python:3.8.3-slim-buster
+
+# RUN echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
+# && apk add py3-pandas@community
+# RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+# RUN apk add --update --no-cache py3-numpy
+# # ENV PYTHONPATH=/usr/lib/python3.8/site-packages
+
+# extra metadata
+LABEL version="1.0"
+LABEL description="Image for CRM."
+LABEL author="Author Name"
+
+# set work directory
+WORKDIR /usr/src/app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+
+RUN apt-get update && apt-get -y dist-upgrade
+# RUN apt-get -y install build-essential libssl-dev libffi-dev libblas3 libc6 liblapack3 gcc python3-dev python3-pip cython3
+# RUN apt-get -y install python3-numpy python3-scipy 
+RUN apt install -y netcat
+
+RUN pip install --upgrade pip
+COPY ./requirements.txt .
+RUN chmod +x ./requirements.txt
+RUN pip install -r ./requirements.txt
+
+# # install psycopg2 dependencies
+# RUN apk update \
+#     && apk add postgresql-dev gcc python3-dev musl-dev
+
+# # # install psycopg2
+# # RUN apk update \
+# #     && apk add --virtual build-deps gcc python3-dev musl-dev \
+# #     && apk add postgresql \
+# #     && apk add postgresql-dev \
+# #     && pip install psycopg2 \
+# #     && apk del build-deps \
+# #     && apk add jpeg-dev \
+# #     && apk add libjpeg \
+# #     && apk add zlib-dev
+
+# # install Pillow
+# # RUN apk add --no-cache jpeg-dev zlib-dev
+# # RUN apk add --no-cache --virtual .build-deps build-base linux-headers \
+# #     && pip install Pillow==7.1.2
+
+# # install dependencies
+# RUN pip install --upgrade pip
+# COPY ./requirements.txt .
+# RUN pip install -r requirements.txt
+
+# copy entrypoint.sh
+COPY ./entrypoint.dev.sh .
+
+# copy project
+COPY . .
+
+RUN echo $PWD
+RUN ls -la
+
+# run entrypoint.sh
+ENTRYPOINT ["/usr/src/app/entrypoint.dev.sh"]
